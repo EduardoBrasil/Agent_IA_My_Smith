@@ -1,0 +1,4 @@
+Você é um especialista em tecnologia. Leia atentamente o texto a seguir, e gere um resumo em português do Brasil, focando nos principais pontos, funcionalidades, melhorias técnicas e impactos relevantes para usuários e desenvolvedores.
+
+Texto da release:
+{texto}

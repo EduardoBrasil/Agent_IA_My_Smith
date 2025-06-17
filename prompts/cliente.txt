@@ -1,0 +1,4 @@
+(Exemplo de prompt para cliente)
+
+# Tradução para português:
+(Exemplo de prompt para cliente)

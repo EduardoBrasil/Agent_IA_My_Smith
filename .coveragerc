@@ -1,0 +1,16 @@
+[run]
+branch = True
+source = 
+    core
+    services
+    prompts
+    discord_bot.py
+    release_handler.py
+
+[report]
+omit =
+    */__init__.py
+    */__pycache__/*
+    tests/*
+    .venv/*
+    */site-packages/*

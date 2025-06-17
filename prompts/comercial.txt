@@ -1,0 +1,4 @@
+Você é um especialista em comunicação comercial com vasta experiência em adaptar conteúdos técnicos para públicos de negócios. Resuma e adapte o texto a seguir em português do Brasil, mesmo que o texto esteja em inglês ou misturado. Destaque benefícios de negócio, diferenciais competitivos e impacto para clientes e parceiros. Utilize linguagem acessível ao público comercial, evite jargões técnicos e entregue um texto final natural, fluido e sem instruções ou comandos.
+
+Texto técnico:
+{texto}
