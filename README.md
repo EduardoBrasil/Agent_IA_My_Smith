@@ -1,5 +1,7 @@
 # Agente IA Discord
 
+![Cobertura de Código](https://img.shields.io/badge/coverage-95%25-brightgreen)
+
 Este projeto é um bot do Discord em Python que lê mensagens e arquivos PDF enviados em um canal e gera resumos inteligentes para diferentes públicos (Comercial, Suporte e PM), utilizando IA e prompts customizáveis.
 
 ## Principais Features
@@ -63,3 +65,9 @@ HF_API_TOKEN=seu_token_huggingface
 **Importante:**
 - Nunca publique seu arquivo `.env` ou compartilhe seus tokens publicamente.
 - O arquivo `.env` já está protegido pelo `.gitignore` deste projeto.
+
+## Cobertura de Testes
+
+Este projeto utiliza o [pytest](https://docs.pytest.org/) e [pytest-cov](https://pytest-cov.readthedocs.io/) para garantir alta cobertura de código.
+
+Veja detalhes e instruções em [COVERAGE.md](COVERAGE.md).
