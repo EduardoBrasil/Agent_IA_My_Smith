@@ -39,3 +39,17 @@ class HuggingFaceAdapter:
             return text
         except Exception:
             return text
+
+    def question_answer(self, question: str, context: str, model: str = "google/bigbird-roberta-base") -> str:
+        api_url = f"https://api-inference.huggingface.co/models/{model}"
+        headers = {"Authorization": f"Bearer {self.api_token}"}
+        payload = {"inputs": {"question": question, "context": context[:2000]}}
+        try:
+            response = requests.post(api_url, headers=headers, json=payload, timeout=60)
+            response.raise_for_status()
+            result = response.json()
+            if isinstance(result, dict) and "answer" in result:
+                return result["answer"]
+            return ""
+        except Exception:
+            return ""

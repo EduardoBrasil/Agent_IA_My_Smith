@@ -1,0 +1,150 @@
+Q: Como agendar um Pix?
+A: Use o menu de agendamento e selecione a data desejada.
+
+Q: O que fazer se o saldo for insuficiente?
+A: O sistema notificará e não executará o Pix agendado. Certifique-se de que há saldo disponível antes da data agendada.
+
+Q: Como cancelar um agendamento?
+A: Acesse a lista de agendamentos e clique em cancelar ao lado do item desejado. O valor será estornado automaticamente.
+
+Q: Como reemitir um comprovante?
+A: Acesse o histórico e clique em 'Reemitir Comprovante'. O novo comprovante será enviado para seu e-mail.
+
+Q: Como alterar a data de um Pix agendado?
+A: Cancele o agendamento anterior e crie um novo com a data desejada.
+
+Q: Posso agendar um Pix para o mesmo dia?
+A: Sim, desde que o horário de execução seja posterior ao horário atual.
+
+Q: Como visualizar todos os Pix agendados?
+A: Acesse o menu 'Meus Agendamentos' no aplicativo para ver todos os agendamentos futuros e passados.
+
+Q: Receberei notificação quando o Pix for executado?
+A: Sim, você receberá uma notificação push e um e-mail assim que o Pix for realizado.
+
+Q: É possível editar um Pix já agendado?
+A: Não, é necessário cancelar e criar um novo agendamento com as informações corretas.
+
+Q: Quais bancos aceitam Pix agendado?
+A: Todos os bancos participantes do sistema Pix aceitam agendamento, consulte seu banco para detalhes.
+
+Q: Como saber se o Pix agendado foi realizado?
+A: Verifique o status no histórico de transações. Se realizado, aparecerá como 'Concluído'.
+
+Q: Existe limite de valor para Pix agendado?
+A: Sim, o mesmo limite do Pix tradicional se aplica. Consulte seu banco para valores específicos.
+
+Q: Posso agendar Pix para contas de outros bancos?
+A: Sim, desde que o destinatário aceite Pix e a conta esteja habilitada para recebimento.
+
+Q: Como corrigir um erro no valor do Pix agendado?
+A: Cancele o agendamento e crie um novo com o valor correto. Não é possível editar um Pix já agendado.
+
+Q: Pix agendado pode ser parcelado?
+A: Não, cada agendamento corresponde a uma única transferência. Para parcelar, crie múltiplos agendamentos.
+
+Q: Como funciona o estorno de Pix agendado?
+A: Após a execução, o estorno segue as regras do Pix tradicional. Consulte seu banco para detalhes.
+
+Q: Posso agendar Pix para datas muito futuras?
+A: Sim, desde que dentro do limite permitido pelo banco. Consulte o prazo máximo com sua instituição.
+
+Q: Como cancelar todos os Pix agendados?
+A: Cancele individualmente cada agendamento na lista de agendamentos do aplicativo.
+
+Q: Pix agendado pode ser feito para pessoa jurídica?
+A: Sim, desde que a conta aceite Pix e esteja habilitada para recebimento.
+
+Q: Existe taxa para Pix agendado?
+A: Depende do banco, consulte sua instituição financeira para saber se há cobrança de taxas.
+
+Q: Como corrigir um erro no destinatário do Pix agendado?
+A: Cancele o agendamento e crie um novo com os dados corretos do destinatário.
+
+Q: Como saber se o Pix agendado foi cancelado?
+A: O status do agendamento mudará para 'Cancelado' no histórico de transações.
+
+Q: Posso reagendar um Pix que foi cancelado?
+A: Sim, basta criar um novo agendamento com as informações desejadas.
+
+Q: Como consultar o comprovante de um Pix agendado?
+A: Acesse o histórico, selecione o Pix desejado e clique em 'Ver Comprovante'.
+
+Q: Como alterar o valor de um Pix agendado?
+A: Cancele o agendamento e crie um novo com o valor correto.
+
+Q: Pix agendado pode ser feito para pessoa física e jurídica?
+A: Sim, desde que a conta de destino aceite Pix.
+
+Q: Como saber se o destinatário recebeu o Pix agendado?
+A: Verifique o status como 'Concluído' e confirme com o destinatário.
+
+Q: Existe horário limite para agendar um Pix?
+A: Sim, depende do banco. Consulte sua instituição para horários de agendamento.
+
+Q: Como funciona a confirmação de agendamento?
+A: Você receberá uma mensagem de confirmação no app e por e-mail após agendar.
+
+Q: Posso cancelar um Pix agendado no mesmo dia?
+A: Sim, desde que o cancelamento seja feito antes do horário de execução.
+
+Q: Como consultar o histórico de Pix agendados?
+A: Acesse o menu 'Histórico' no aplicativo e filtre por agendamentos.
+
+Q: Pix agendado pode ser feito para contas internacionais?
+A: Não, o Pix agendado só está disponível para contas nacionais.
+
+Q: Como saber se o Pix agendado foi recusado?
+A: O status aparecerá como 'Recusado' no histórico e você será notificado.
+
+Q: Posso agendar Pix para CPF e CNPJ?
+A: Sim, desde que a conta de destino aceite Pix.
+
+Q: Como alterar o banco de origem do Pix agendado?
+A: Cancele o agendamento e crie um novo selecionando o banco desejado.
+
+Q: Pix agendado pode ser feito para contas poupança?
+A: Sim, desde que a conta aceite Pix.
+
+Q: Como saber o motivo de um Pix agendado não realizado?
+A: Verifique o status e a mensagem de erro no histórico de transações.
+
+Q: Posso agendar Pix para mais de uma pessoa ao mesmo tempo?
+A: Não, cada agendamento é individual. Crie múltiplos agendamentos se necessário.
+
+Q: Como receber comprovante de Pix agendado por e-mail?
+A: Ative a opção de envio de comprovante por e-mail nas configurações do aplicativo.
+
+Q: Existe valor mínimo para Pix agendado?
+A: Sim, o valor mínimo é definido pelo banco. Consulte sua instituição.
+
+Q: Como saber se o Pix agendado está pendente?
+A: O status 'Pendente' aparecerá no histórico até a execução.
+
+Q: Pix agendado pode ser feito para contas digitais?
+A: Sim, desde que a conta aceite Pix.
+
+Q: Como alterar a chave Pix do destinatário em um agendamento?
+A: Cancele o agendamento e crie um novo com a chave correta.
+
+Q: Posso agendar Pix para datas em feriados?
+A: Sim, mas a execução pode ocorrer no próximo dia útil dependendo do banco.
+
+Q: Como saber se o Pix agendado foi programado corretamente?
+A: Você receberá uma confirmação no app e poderá consultar no histórico.
+
+Q: Pix agendado pode ser feito para contas salário?
+A: Sim, desde que a conta aceite Pix.
+
+Q: Como cancelar um Pix agendado após o horário limite?
+A: Não é possível cancelar após o horário de execução. Entre em contato com o banco para mais informações.
+
+Q: Como saber se o Pix agendado foi estornado?
+A: O status 'Estornado' aparecerá no histórico e o valor será devolvido à sua conta.
+
+Q: Posso agendar Pix para contas de pagamento?
+A: Sim, desde que a conta aceite Pix.
+
+Q: Como receber alerta de Pix agendado próximo da execução?
+A: Ative notificações no app para receber alertas antes da execução.
+

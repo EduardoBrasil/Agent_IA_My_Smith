@@ -68,6 +68,77 @@ HF_API_TOKEN=seu_token_huggingface
 
 ## Cobertura de Testes
 
-Este projeto utiliza o [pytest](https://docs.pytest.org/) e [pytest-cov](https://pytest-cov.readthedocs.io/) para garantir alta cobertura de código.
+Este projeto utiliza o [pytest](https://docs.pytest.org/) e [pytest-cov](https://pytest-cov.readthedocs.io/) para garantir cobertura de código.
 
 Veja detalhes e instruções em [COVERAGE.md](COVERAGE.md).
+
+## Comandos Inteligentes
+
+- `!leiapdf <arquivo>`: Processa PDF, gera resumo e adapta para cada público.
+- `!ultimaversao`: Mostra o resumo da última versão disponível na pasta outputs.
+- `!duvida <sua pergunta>`: Permite perguntar sobre a última versão e recebe resposta da IA baseada no conteúdo do documento mais recente.
+
+## Comandos do Discord
+
+- `!leiapdf <nome_arquivo>` — Gera resumo do PDF e adapta para Comercial, Suporte e Produto.
+- `!leiatxt <nome_arquivo>` — Gera resumo de um arquivo TXT.
+- `!leiaarquivo <nome_arquivo>` — Lê e mostra o conteúdo de qualquer arquivo suportado (PDF/TXT).
+- `!ultimaversao` — Mostra o resumo da última versão disponível na pasta outputs.
+- `!duvida <sua pergunta>` — Permite perguntar sobre a última versão e recebe resposta da IA baseada no conteúdo do release mais recente.
+- `!versao <nome_ou_data>` — Busca e resume uma versão específica pelo nome do arquivo ou parte dele.
+- `!gerarpdf <público>` — (Em breve) Gera e envia um PDF com o resumo adaptado para o público escolhido.
+- `!faq [<pergunta>]` — (Em breve) Mostra perguntas frequentes ou responde dúvidas comuns.
+
+## Novidades e exemplos de uso
+
+### Geração automática e manual de resumos
+- Ao adicionar um PDF na pasta `outputs/`, o bot processa automaticamente e envia resumos adaptados para os canais de Comercial, Suporte e Produto.
+- Use `!leiapdf <arquivo>` para processar manualmente qualquer PDF da pasta `outputs/`.
+
+### Geração de PDF customizado
+- `!gerarpdf <público>` — Gera e envia um PDF com o resumo adaptado para o público escolhido (comercial, suporte ou produto). O arquivo é salvo em `pdfs_customizados/`.
+
+### Exemplo de uso dos comandos
+```
+!leiapdf release_teste.pdf
+!leiatxt exemplo.txt
+!leiaarquivo release_teste.pdf
+!ultimaversao
+!versao 2025-06
+!duvida O que mudou nesta versão?
+!gerarpdf comercial
+```
+
+## Como funcionará a FAQ inteligente
+
+O comando `!faq` terá dois modos:
+- `!faq` — Mostra uma lista de perguntas frequentes (FAQ) cadastradas, extraídas de um arquivo ou base configurável.
+- `!faq <pergunta>` — O bot busca a resposta mais relevante na base de FAQs usando IA (busca semântica ou similaridade) e responde no canal. Se não encontrar resposta adequada, pode sugerir perguntar para um humano ou acionar fallback de IA.
+
+**Como cadastrar perguntas frequentes:**
+- As FAQs podem ser mantidas em um arquivo como `prompts/faq.txt` (cada pergunta e resposta separadas por linha ou bloco).
+- Exemplo de estrutura:
+  
+  ```
+  Q: Como agendar um Pix?
+  A: Use o menu de agendamento e selecione a data desejada.
+
+  Q: O que fazer se o saldo for insuficiente?
+  A: O sistema notificará e não executará o Pix agendado.
+  ```
+- O bot pode ler esse arquivo e, ao receber `!faq <pergunta>`, buscar a resposta mais próxima usando IA ou busca por similaridade.
+
+**Vantagens:**
+- Respostas rápidas para dúvidas comuns.
+- Fácil manutenção e atualização das FAQs.
+- Pode ser expandido para buscar em múltiplos arquivos ou integrar com bases externas.
+
+## Funcionalidades automáticas
+
+- **Notificações automáticas:** O bot monitora a pasta outputs/ e avisa no canal sempre que um novo release é adicionado.
+
+## Extensibilidade
+
+- Adicione novos públicos facilmente criando novas estratégias.
+- Troque o backend de IA apenas implementando um novo Adapter.
+- Suporte a novos formatos de arquivo via Template Method.

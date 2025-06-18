@@ -21,3 +21,6 @@ class SummarizationService:
 
     def translate_to_ptbr(self, text: str) -> str:
         return self.adapter.translate_to_ptbr(text)
+
+    def question_answer(self, question: str, context: str, model: str = "deepset/roberta-base-squad2") -> str:
+        return self.adapter.question_answer(question, context, model)
