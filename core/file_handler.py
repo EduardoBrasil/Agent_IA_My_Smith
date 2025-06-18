@@ -50,41 +50,31 @@ class FileHandler:
     def read_pdf_file(self, nome_arquivo):
         result = self._find_file(nome_arquivo, extensions=['.pdf'])
         if result is None:
-            return f"PDF '{nome_arquivo}' não encontrado no workspace ou caminho absoluto não existe."
+            return ""
         if isinstance(result, list):
-            msg = '\n'.join(result)
-            return f"Foram encontrados vários PDFs compatíveis:\n{msg}\nUtilize o caminho completo."
+            return ""
         text = ""
-        # Tenta extrair com pdfplumber primeiro
         try:
             import pdfplumber
             with pdfplumber.open(result) as pdf:
                 text = "\n".join(page.extract_text() or '' for page in pdf.pages)
-        except Exception as e:
-            print(f"[ERRO] Falha ao extrair com pdfplumber: {e}")
+        except Exception:
             text = ""
-        # Se pdfplumber falhar, tenta PyPDF2
         if not text or len(text.strip()) < 30:
             try:
                 import PyPDF2
                 with open(result, 'rb') as f:
                     reader = PyPDF2.PdfReader(f)
                     text = ""
-                    for i, page in enumerate(reader.pages):
-                        try:
-                            page_text = page.extract_text()
-                        except Exception as e:
-                            page_text = f"[Erro ao extrair texto da página {i+1}: {e}]"
+                    for page in reader.pages:
+                        page_text = page.extract_text()
                         if page_text:
                             text += page_text + "\n"
-            except Exception as e:
-                print(f"[ERRO] Falha ao extrair com PyPDF2: {e}")
+            except Exception:
                 text = ""
-        # Limpa quebras de linha artificiais
         import re
         text = re.sub(r'(?<!\n)\n(?!\n)', ' ', text)
         text = re.sub(r' +', ' ', text)
         if not text or len(text.strip()) < 30:
-            return f"[AVISO] Não foi possível extrair texto útil do PDF '{nome_arquivo}'. O arquivo pode estar protegido, ser uma imagem ou ter formatação incompatível."
-        preview = text[:1500] + ("..." if len(text) > 1500 else "")
-        return f"Conteúdo do PDF '{nome_arquivo}':\n{preview}"
+            return ""
+        return text.strip()
