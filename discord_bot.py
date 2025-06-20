@@ -274,56 +274,183 @@ def limpar_texto(texto):
     texto = re.sub(r'[^\w\s]', '', texto.lower())
     return ' '.join([w for w in texto.split() if w not in STOPWORDS])
 
+# Função utilitária para carregar a base de FAQ
+async def carregar_faq():
+    faq_path = os.path.join("prompts", "faqSUPORTE.txt")
+    with open(faq_path, encoding="utf-8") as f:
+        conteudo = f.read()
+    blocos = [b.strip() for b in conteudo.split('----------------------------------------') if b.strip()]
+    faqs = []
+    produto_atual = None
+    categoria_atual = None
+    for bloco in blocos:
+        linhas = [l.strip() for l in bloco.split('\n') if l.strip()]
+        dados = {"produto": None, "categoria": None, "pergunta": None, "tipo": None, "procedimento": None, "solucao": None}
+        for l in linhas:
+            l_lower = l.lower().replace('ç', 'c').replace('ã', 'a').replace('á', 'a').replace('é', 'e').replace('í', 'i').replace('ó', 'o').replace('ú', 'u')
+            if l_lower.replace(' ', '').startswith('produto:'):
+                produto_atual = l.split(':',1)[1].strip() or None
+                dados["produto"] = produto_atual
+            elif l_lower.replace(' ', '').startswith('categoria:'):
+                categoria_atual = l.split(':',1)[1].strip() or None
+                dados["categoria"] = categoria_atual
+            elif l_lower.replace(' ', '').startswith('pergunta:'):
+                dados["pergunta"] = l.split(':',1)[1].strip()
+            elif l_lower.replace(' ', '').startswith('tipodesolicitacao:'):
+                dados["tipo"] = l.split(':',1)[1].strip()
+            elif l_lower.replace(' ', '').startswith('procedimento:'):
+                dados["procedimento"] = l.split(':',1)[1].strip()
+            elif l_lower.replace(' ', '').startswith('solucao:'):
+                dados["solucao"] = l.split(':',1)[1].strip()
+        if not dados["produto"]:
+            dados["produto"] = produto_atual
+        if not dados["categoria"]:
+            dados["categoria"] = categoria_atual
+        if dados["pergunta"] and dados["solucao"]:
+            faqs.append(dados)
+    return faqs
+
 @bot.command(name="faq")
 async def faq(ctx, *, pergunta: str = None):
     """
     Responde perguntas frequentes a partir da base gerada dos chamados.
-    - !faq           => lista as perguntas mais frequentes
+    - !faq           => inicia menu navegável por produto/categoria/pergunta
     - !faq <pergunta> => busca a resposta mais próxima na base (fuzzy + match exato + stopwords + fallback)
     """
-    faq_path = os.path.join("prompts", "faq.txt")
-    if not os.path.exists(faq_path):
-        await ctx.send("Base de FAQ não encontrada. Gere a FAQ a partir dos chamados primeiro.")
+    # Restrição: só permite uso no canal de suporte
+    SUPORTE_CHANNEL_ID = int(os.getenv('CANAL_SUPORTE_ID', '0'))
+    if ctx.channel.id != SUPORTE_CHANNEL_ID:
+        await ctx.send("Este comando só pode ser usado no canal de suporte.")
         return
-    with open(faq_path, encoding="utf-8") as f:
-        blocos = f.read().strip().split('\n\n')
-    faqs = []
-    for bloco in blocos:
-        if bloco.strip():
-            linhas = bloco.strip().split('\n')
-            q = next((l[3:].strip() for l in linhas if l.startswith('Q: ')), None)
-            a = next((l[3:].strip() for l in linhas if l.startswith('A: ')), None)
-            if q and a:
-                faqs.append((q, a))
-    if not pergunta:
-        perguntas = [f"- {q}" for q, _ in faqs]
-        msg = "Perguntas frequentes:\n" + "\n".join(perguntas[:15])
-        await ctx.send(msg)
-        return
-    # Busca exata (case-insensitive)
-    for q, a in faqs:
-        if pergunta.strip().lower() == q.strip().lower():
-            await ctx.send(f"Q: {q}\nA: {a}")
+    if pergunta:
+        pasta = "outputs"
+        arquivo = get_latest_file(pasta)
+        if not arquivo:
+            await ctx.send("Nenhum arquivo de release encontrado na pasta outputs.")
             return
-    # Busca fuzzy com limpeza de stopwords (threshold alto)
-    pergunta_proc = limpar_texto(pergunta)
-    melhor_q, melhor_a, melhor_score = None, None, 0
-    for q, a in faqs:
-        q_proc = limpar_texto(q)
-        score = fuzz.token_set_ratio(pergunta_proc, q_proc)
-        if score > melhor_score:
-            melhor_q, melhor_a, melhor_score = q, a, score
-    if melhor_a and melhor_score >= 80:
-        await ctx.send(f"Q: {melhor_q}\nA: {melhor_a}")
+        handler = FileHandler()
+        if arquivo.lower().endswith(".pdf"):
+            conteudo = handler.read_pdf_file(arquivo)
+        else:
+            conteudo = handler.read_any_file(arquivo)
+        if not conteudo or len(conteudo.strip()) < 10:
+            await ctx.send("Não foi possível ler o conteúdo da última versão.")
+            return
+        resposta = file_handler_service.summarizer.question_answer(pergunta, conteudo[:2000])
+        print(f"[DEBUG] Resposta QA: {repr(resposta)}")
+        # Fallbacks para resposta vazia, erro ou resposta irrelevante
+        if not resposta or resposta.strip() == "" or resposta.lower() in ["n/a", "none", "", "status 404"] or len(resposta.strip()) < 5:
+            print("[DEBUG] Executando fallback para sumarização...")
+            prompt = (
+                f"Você é um assistente especialista em releases de software.\n"
+                f"Leia o texto abaixo e responda à pergunta em português do Brasil, de forma clara e objetiva.\n"
+                f"Release:\n{conteudo[:1000]}\n\n"
+                f"Pergunta: {pergunta}"
+            )
+            resposta = file_handler_service.summarizer.summarize(prompt, min_length=100, max_length=1024)
+            print(f"[DEBUG] Resposta sumarização: {repr(resposta)}")
+            if not resposta or resposta.strip() == "" or resposta.lower() in ["n/a", "none", "", "status 404"] or len(resposta.strip()) < 5:
+                resposta = "Não foi possível obter uma resposta relevante da IA para sua dúvida."
+                print("[DEBUG] Fallback final: resposta padrão enviada.")
+        await ctx.send(resposta)
         return
-    # Fallback: fuzzy com threshold menor
-    melhor_q2, melhor_a2, melhor_score2 = None, None, 0
-    for q, a in faqs:
-        q_proc = limpar_texto(q)
-        score = fuzz.token_set_ratio(pergunta_proc, q_proc)
-        if score > melhor_score2:
-            melhor_q2, melhor_a2, melhor_score2 = q, a, score
-    if melhor_a2 and melhor_score2 >= 65:
-        await ctx.send(f"Q: {melhor_q2}\nA: {melhor_a2}")
-    else:
-        await ctx.send("Não encontrei uma resposta relevante na FAQ. Tente reformular sua dúvida ou consulte o suporte humano.")
+    faqs = await carregar_faq()
+    produtos = sorted(set(faq["produto"] for faq in faqs if faq["produto"]))
+    if not produtos:
+        await ctx.send("Nenhum produto encontrado na base de FAQ.")
+        return
+    async def send_produto_menu(interaction=None):
+        class ProdutoSelect(discord.ui.Select):
+            def __init__(self, produtos):
+                options = [discord.SelectOption(label=p, value=p) for p in produtos]
+                super().__init__(placeholder="Selecione o produto...", min_values=1, max_values=1, options=options)
+            async def callback(self, interaction):
+                await send_categoria_menu(interaction, self.values[0])
+        class ProdutoView(discord.ui.View):
+            def __init__(self, produtos):
+                super().__init__(timeout=60)
+                self.add_item(ProdutoSelect(produtos))
+        if interaction:
+            await interaction.response.edit_message(content="Selecione o produto desejado:", view=ProdutoView(produtos))
+        else:
+            await ctx.send("Selecione o produto desejado:", view=ProdutoView(produtos))
+    async def send_categoria_menu(interaction, produto_escolhido):
+        categorias = sorted(set(faq["categoria"] for faq in faqs if faq["produto"] == produto_escolhido and faq["categoria"]))
+        class CategoriaSelect(discord.ui.Select):
+            def __init__(self, categorias):
+                options = [discord.SelectOption(label=c, value=c) for c in categorias]
+                super().__init__(placeholder="Selecione a categoria...", min_values=1, max_values=1, options=options)
+            async def callback(self, interaction2):
+                await send_pergunta_menu(interaction2, produto_escolhido, self.values[0])
+        class CategoriaView(discord.ui.View):
+            def __init__(self, categorias):
+                super().__init__(timeout=60)
+                self.add_item(CategoriaSelect(categorias))
+                self.add_item(self.VoltarButton())
+            class VoltarButton(discord.ui.Button):
+                def __init__(self):
+                    super().__init__(label="Voltar", style=discord.ButtonStyle.secondary)
+                async def callback(self, interaction3):
+                    await send_produto_menu(interaction3)
+        await interaction.response.edit_message(content=f"Selecione a categoria para o produto '{produto_escolhido}':", view=CategoriaView(categorias))
+    async def send_pergunta_menu(interaction, produto_escolhido, categoria_escolhida):
+        perguntas = [faq for faq in faqs if faq["produto"] == produto_escolhido and faq["categoria"] == categoria_escolhida]
+        page_size = 10
+        total_pages = (len(perguntas) - 1) // page_size + 1
+        async def show_page(page, interaction_to_update=None):
+            class PerguntaSelect(discord.ui.Select):
+                def __init__(self, perguntas, page, total_pages):
+                    start = page * page_size
+                    end = start + page_size
+                    self.perguntas = perguntas
+                    self.page = page
+                    self.total_pages = total_pages
+                    options = [discord.SelectOption(label=p["pergunta"][:90], value=str(i+start)) for i, p in enumerate(perguntas[start:end])]
+                    super().__init__(placeholder=f"Perguntas (página {page+1}/{total_pages})", min_values=1, max_values=1, options=options)
+                async def callback(self, interaction3):
+                    idx = int(self.values[0])
+                    faq_item = perguntas[idx]
+                    resposta = (
+                        f"**Produto:** {faq_item['produto'] or 'Não informado'}\n"
+                        f"**Categoria:** {faq_item['categoria'] or 'Não informado'}\n"
+                        f"**Pergunta:** {faq_item['pergunta'] or 'Não informado'}\n"
+                        f"**Tipo de solicitação:** {faq_item['tipo'] or 'Não informado'}\n"
+                        f"**Procedimento:** {faq_item['procedimento'] or 'Não informado'}\n"
+                        f"**Solução:** {faq_item['solucao'] or 'Não informado'}"
+                    )
+                    await interaction3.response.send_message(resposta, ephemeral=True)
+            class PerguntaView(discord.ui.View):
+                def __init__(self, perguntas, page, total_pages):
+                    super().__init__(timeout=120)
+                    self.page = page
+                    self.perguntas = perguntas
+                    self.total_pages = total_pages
+                    self.add_item(PerguntaSelect(perguntas, page, total_pages))
+                    if page > 0:
+                        self.add_item(self.PrevButton(self))
+                    if (page + 1) < total_pages:
+                        self.add_item(self.NextButton(self))
+                    self.add_item(self.VoltarButton())
+                class PrevButton(discord.ui.Button):
+                    def __init__(self, view):
+                        super().__init__(label="Anterior", style=discord.ButtonStyle.secondary)
+                        self.view_ref = view
+                    async def callback(self, interaction):
+                        await show_page(self.view_ref.page - 1, interaction)
+                class NextButton(discord.ui.Button):
+                    def __init__(self, view):
+                        super().__init__(label="Próxima", style=discord.ButtonStyle.secondary)
+                        self.view_ref = view
+                    async def callback(self, interaction):
+                        await show_page(self.view_ref.page + 1, interaction)
+                class VoltarButton(discord.ui.Button):
+                    def __init__(self):
+                        super().__init__(label="Voltar", style=discord.ButtonStyle.secondary)
+                    async def callback(self, interaction):
+                        await send_categoria_menu(interaction, produto_escolhido)
+            if interaction_to_update:
+                await interaction_to_update.response.edit_message(content=f"Selecione a pergunta da categoria '{categoria_escolhida}':", view=PerguntaView(perguntas, page, total_pages))
+            else:
+                await interaction.response.edit_message(content=f"Selecione a pergunta da categoria '{categoria_escolhida}':", view=PerguntaView(perguntas, page, total_pages))
+        await show_page(0)
+    await send_produto_menu()

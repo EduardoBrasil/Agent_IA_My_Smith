@@ -1,0 +1,189 @@
+Produto: Pix
+Categoria: Pix Agendado com Falha
+Pergunta: Pix agendado para 09:00 de hoje não foi executado.
+Tipo de solicitação: Incidente
+Procedimento: Verificar logs de agendamento. Checar saldo e status do SPI no horário.
+Solução: SELECT * FROM agendamentos WHERE id_transacao = 'XYZ123'; Verificar motivo de falha (saldo_insuficiente, conta_destino_inativa, etc.).
+----------------------------------------
+Produto: Pix
+Categoria: Pix Agendado com Falha
+Pergunta: Cliente cancelou agendamento ontem, mas ainda consta como agendado.
+Tipo de solicitação: Dúvida
+Procedimento: Confirmar se o cancelamento foi registrado.
+Solução: Validar no banco: SELECT status FROM agendamentos WHERE id_cliente = X AND data_execucao = CURRENT_DATE; Status deve estar como "cancelado".
+----------------------------------------
+Produto: Pix
+Categoria: Pix Agendado com Falha
+Pergunta: Agendamento foi executado duas vezes.
+Tipo de solicitação: Incidente
+Procedimento: Conferir duplicidade de agendamento.
+Solução: Validar COUNT(*) por id_transacao e data_execucao. Se maior que 1, identificar erro no processo agendador.
+----------------------------------------
+Produto: Pix
+Categoria: Pix não creditado
+Pergunta: Cliente afirma que pagou R$150,00 via Pix há 1h. Enviou comprovante.
+Tipo de solicitação: Incidente
+Procedimento: Verificar E2E ID no SPI e logs internos.
+Solução: SELECT * FROM transacoes WHERE e2e_id = 'E123...'; Confirmar status na SPI: LIQUIDADO/REJEITADO.
+----------------------------------------
+Produto: Pix
+Categoria: Pix não creditado
+Pergunta: Pix recebido sumiu do extrato após 1 dia.
+Tipo de solicitação: Incidente
+Procedimento: Verificar histórico da conta.
+Solução: Consultar tabela de movimentações e reconciliação: SELECT * FROM extrato WHERE id_transacao = 'XYZ';
+----------------------------------------
+Produto: Pix
+Categoria: Pix não creditado
+Pergunta: Cliente recebeu Pix, mas valor incorreto.
+Tipo de solicitação: Incidente
+Procedimento: Verificar logs e valores na geração do QR Code ou envio manual.
+Solução: Conferir valor_enviado vs valor_liquidado em logs de transação.
+----------------------------------------
+Produto: Pix
+Categoria: QR Code Inválido
+Pergunta: QR Code gerado não é aceito pelo app do cliente.
+Tipo de solicitação: Incidente
+Procedimento: Validar estrutura do QR Code.
+Solução: Utilizar ferramenta de decode QR e conferir campos obrigatórios. Exemplo: ausência do campo brcode.
+----------------------------------------
+Produto: Pix
+Categoria: QR Code Inválido
+Pergunta: QR Code funciona apenas em um banco.
+Tipo de solicitação: Incidente
+Procedimento: Checar interoperabilidade e formatação.
+Solução: Validar se o QR segue padrão do Bacen. Ver version e payload_format_indicator.
+----------------------------------------
+Produto: Pix
+Categoria: QR Code Inválido
+Pergunta: QR Code dinâmico gerado apresenta erro ao escanear.
+Tipo de solicitação: Incidente
+Procedimento: Confirmar estabilidade do endpoint de geração.
+Solução: Verificar logs do serviço de geração: /v2/pix/cobranca. Validar JSON enviado.
+----------------------------------------
+Produto: Recarga
+Categoria: Recarga não concluída
+Pergunta: Fiz recarga de R$20 e não chegou no celular.
+Tipo de solicitação: Incidente
+Procedimento: Verificar status com operadora e logs de envio.
+Solução: SELECT * FROM recargas WHERE telefone = 'XX9999'; Ver status = 'concluído' ou 'falhou'.
+----------------------------------------
+Produto: Recarga
+Categoria: Recarga não concluída
+Pergunta: Cliente recebeu SMS de sucesso, mas sem crédito.
+Tipo de solicitação: Incidente
+Procedimento: Validar integração com gateway da operadora.
+Solução: Consultar logs no gateway e pedir retorno do protocolo à operadora.
+----------------------------------------
+Produto: Recarga
+Categoria: Recarga não concluída
+Pergunta: Recarga feita com DDD errado.
+Tipo de solicitação: Dúvida
+Procedimento: Confirmar número digitado pelo cliente.
+Solução: Conferir logs de entrada. Se digitado incorretamente, informar que não há como reverter após envio.
+----------------------------------------
+Produto: Recarga
+Categoria: Erro no valor da recarga
+Pergunta: Sistema só oferece valores fixos de recarga.
+Tipo de solicitação: Solicitação
+Procedimento: Verificar se plataforma está configurada para aceitar valores livres.
+Solução: Validar na tabela de parâmetros da plataforma: SELECT * FROM configuracoes WHERE chave = 'valor_recarga_customizado';
+----------------------------------------
+Produto: Recarga
+Categoria: Erro no valor da recarga
+Pergunta: Cliente queria recarga de R$12, mas só aparece R$15.
+Tipo de solicitação: Dúvida
+Procedimento: Confirmar política da operadora.
+Solução: Informar que operadoras exigem valores mínimos.
+----------------------------------------
+Produto: Recarga
+Categoria: Erro no valor da recarga
+Pergunta: Valor debitado não bate com valor enviado.
+Tipo de solicitação: Incidente
+Procedimento: Checar logs da transação e taxa aplicada.
+Solução: SELECT valor_pago, valor_enviado FROM recargas WHERE id = X;
+----------------------------------------
+Produto: Arranjo Fechado
+Categoria: Pagamento Rejeitado
+Pergunta: Tentativa de pagamento com cartão interno foi recusada.
+Tipo de solicitação: Incidente
+Procedimento: Verificar logs da transação e motivo da rejeição (saldo, antifraude, cartão expirado).
+Solução: Consultar transacoes_arranjo WHERE status = 'rejeitado'; Identificar motivo_rejeicao.
+----------------------------------------
+Produto: Arranjo Fechado
+Categoria: Cartão não reconhecido
+Pergunta: Cliente diz que cartão está ativo, mas sistema mostra como inexistente.
+Tipo de solicitação: Incidente
+Procedimento: Validar cadastro do cartão.
+Solução: SELECT * FROM cartoes WHERE numero = 'XXXX'; Verificar se ativo = TRUE.
+----------------------------------------
+Produto: Arranjo Fechado
+Categoria: Cartão vencido
+Pergunta: Cliente está tentando usar cartão vencido.
+Tipo de solicitação: Dúvida
+Procedimento: Confirmar validade do cartão.
+Solução: Explicar que vencimento é definido no contrato e um novo cartão precisa ser emitido.
+----------------------------------------
+Produto: Arranjo Fechado
+Categoria: Limite não atualizado
+Pergunta: Cliente aumentou saldo, mas limite do cartão não alterou.
+Tipo de solicitação: Incidente
+Procedimento: Verificar rotina de atualização de limite após aporte.
+Solução: SELECT * FROM limites_cartao WHERE id_cliente = X; Verificar se houve erro na rotina de atualização automática.
+----------------------------------------
+Produto: Arranjo Fechado
+Categoria: Cartão bloqueado
+Pergunta: Cartão foi bloqueado após tentativa de compra internacional.
+Tipo de solicitação: Dúvida
+Procedimento: Confirmar regras de segurança para uso internacional.
+Solução: Explicar política antifraude. Se necessário, reativar via UPDATE cartoes SET status = 'ativo' WHERE id = X;.
+----------------------------------------
+Produto: Arranjo Fechado
+Categoria: Transação não reconhecida
+Pergunta: Cliente contesta compra no app que não realizou.
+Tipo de solicitação: Solicitação
+Procedimento: Abrir processo de chargeback conforme política interna.
+Solução: Coletar evidências e abrir disputa com adquirente. Atualizar status = 'em_disputa' na transação correspondente.
+----------------------------------------
+Produto: Pagamento de Contas
+Categoria: Conta paga fora do vencimento
+Pergunta: Cliente pagou conta vencida e foi cobrado juros.
+Tipo de solicitação: Dúvida
+Procedimento: Verificar data de pagamento e se valor incluía encargos.
+Solução: SELECT * FROM pagamentos WHERE id_cliente = X; Validar se valor pago bate com valor atualizado pelo emissor do boleto.
+----------------------------------------
+Produto: Pagamento de Contas
+Categoria: Falha na leitura do código
+Pergunta: Leitura automática de boleto falhou no app.
+Tipo de solicitação: Incidente
+Procedimento: Verificar OCR e fallback para digitação manual.
+Solução: Validar logs do app e, se necessário, registrar nova leitura via insert into leitura_falha (...).
+----------------------------------------
+Produto: Pagamento de Contas
+Categoria: Pagamento agendado não executado
+Pergunta: Cliente agendou conta, mas pagamento não foi feito.
+Tipo de solicitação: Incidente
+Procedimento: Verificar logs do agendador e saldo disponível no momento.
+Solução: SELECT * FROM agendamentos_pagamentos WHERE id_cliente = X AND status = 'falhou'; Checar motivo da falha (saldo, erro técnico, etc.).
+----------------------------------------
+Produto: Pagamento de Contas
+Categoria: Boleto não compensado
+Pergunta: Cliente pagou boleto há 3 dias e ele ainda aparece como pendente.
+Tipo de solicitação: Incidente
+Procedimento: Verificar baixa com instituição recebedora.
+Solução: SELECT * FROM boletos WHERE linha_digitavel = 'X'; Conferir status na compensação.
+----------------------------------------
+Produto: Pagamento de Contas
+Categoria: Código de barras inválido
+Pergunta: Cliente digitou código, mas sistema não reconhece.
+Tipo de solicitação: Dúvida
+Procedimento: Verificar se há erro de digitação ou se é um boleto vencido.
+Solução: Informar que boletos vencidos ou de concessionárias podem não ser aceitos em todos os canais.
+----------------------------------------
+Produto: Pagamento de Contas
+Categoria: Pagamento em duplicidade
+Pergunta: Cliente pagou duas vezes o mesmo boleto.
+Tipo de solicitação: Incidente
+Procedimento: Validar se o boleto permite mais de uma liquidação.
+Solução: Consultar boletos WHERE nosso_numero = 'X'; Se sim, instruir cliente a solicitar devolução via SAC.
+----------------------------------------
